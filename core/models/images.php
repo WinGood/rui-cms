@@ -1,15 +1,9 @@
 <?php
-class Models_Images extends Models_Base
+class Models_Images
 {
-	public function __construct()
-	{
-		parent::__construct('images', 'id_image');
-	}
-
 	public function uploadBase64($name, $value)
 	{
-		if(!$this->checkType($name))
-			return false;
+		if(!$this->checkType($name)) return false;
 		
 		$getMime = explode('.', $name);
 		$mime = strtolower(end($getMime));
@@ -17,8 +11,10 @@ class Models_Images extends Models_Base
 
 		while(file_exists(GALLERY_DIR_BIG . $filename))
 			$filename = mt_rand(0, 10000000) . '.' . $mime;
-		
-		$id = $this->add(array('path' => $filename));
+
+		$data = array('path' => $filename);
+
+		$id = DB::insert('images', $data)->execute();
 
 		$this->moveUploadBase64($value, $filename);
 		return $id;

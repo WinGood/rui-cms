@@ -9,7 +9,6 @@ $(document).ready(function() {
 function widgetEdit(widget)
 {
 	this.widget = $(widget);
-	var action  = this.widget.data('widget-toggle');
 	var id      = this.widget.data('widget-node');
 	var that    = this;
 	var isEdit  = true;
@@ -64,6 +63,7 @@ function widgetEdit(widget)
 
 	this.widget.find('.widget-node .front-edit-btn').click(function(e){
 		that.replaceEl($(this).closest('.widget-node').find('*[data-change-key]'));
+		return false;
 	});
 
 	this.replaceEl = function(el)

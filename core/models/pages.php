@@ -1,20 +1,31 @@
 <?php
-class Models_Pages extends Models_Base
+class Models_Pages
 {
-	public function __construct()
+	public function all()
 	{
-		parent::__construct('pages', 'id_page');
+		return DB::select()->from('pages')->execute();
+	}
+
+	public function edit($id, $data)
+	{
+		return DB::update('pages')->set($data)->where('id_page', '=', $id)->execute();
+	}
+
+	public function get($id)
+	{
+		$res = DB::select()->from('pages')->where('id_page', '=', $id)->execute();
+		return $res[0];
 	}
 
 	public function addPage($data)
 	{
 		$data['full_url'] = $this->makeFullUrl($data['id_parent'], $data['url']);
-		return DB::getInstance()->insert('pages', $data);
+		return DB::insert('pages', $data)->execute();
 	}
 
 	public function addTpl($data)
 	{
-		return DB::getInstance()->insert('pages_tpl', $data);
+		return DB::insert('pages_tpl', $data)->execute();
 	}
 
 	public function getTplFiles()
@@ -33,24 +44,24 @@ class Models_Pages extends Models_Base
 
 	public function getTplList()
 	{
-		return DB::getInstance()->select("SELECT * FROM pages_tpl");
+		return DB::select()->from('pages_tpl')->execute();
 	}
 
 	public function getTpl($id)
 	{
-		$res = DB::getInstance()->select("SELECT path FROM pages_tpl WHERE id_tpl = $id");
+		$res = DB::select('path')->from('pages_tpl')->where('id_tpl', '=', $id)->execute();
 		return $res[0];
 	}
 
 	public function getByParent($idParent)
 	{
-		return DB::getInstance()->select("SELECT * FROM pages WHERE id_parent = $idParent");
+		return DB::select()->from('pages')->where('id_parent', '=', $idParent)->execute();
 	}
 
 	public function getThree($parent = 0)
 	{
 		$three = array();
-		$category = DB::getInstance()->select("SELECT * FROM pages WHERE id_parent = $parent");
+		$category = DB::select()->from('pages')->where('id_parent', '=', $parent)->execute();
 		if(!empty($category))
 		{
 			foreach($category as $item)
@@ -101,9 +112,8 @@ class Models_Pages extends Models_Base
 	public function editPage($id, $data)
 	{
 		$data['full_url'] = $this->makeFullUrl($data['id_parent'], $data['url']);
-		$where = "id_page = $id";
 
-		DB::getInstance()->update('pages', $data, $where);
+		DB::update('pages')->set($data)->where('id_page', '=', $id)->execute();
 		$this->changeUrl($id);
 
 		return true;

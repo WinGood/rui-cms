@@ -18,9 +18,9 @@ class DB
 		$this->_mysqli->close();	
 	}
 
-	protected function mysqlFix($str)
+	protected function mysqlFix($str, $html = false)
 	{
-		$str = htmlspecialchars($str);
+		if($html) $str = htmlspecialchars($str);
 		$str = mysql_real_escape_string($str);
 		return $str;
 	}
@@ -28,7 +28,7 @@ class DB
 	public static function getInstance()
 	{
 		if(empty(self::$_instance))  
-		     self::$_instance = new self;
+		    self::$_instance = new self;
 
 		 return self::$_instance;
 	}
@@ -51,6 +51,12 @@ class DB
 	public static function delete($table)
 	{
 		return new Database_Delete($table);
+	}
+
+	public function query($sql)
+	{
+		$this->sql = $sql;
+		return $this->execute();
 	}
 
 	public function execute()

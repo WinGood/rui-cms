@@ -1,8 +1,19 @@
 <?php
-class Models_News extends Models_Base
+class Models_News
 {
-	public function __construct()
+	public function all()
 	{
-		parent::__construct('news', 'id_news');
+		return DB::select()->from('news')->execute();
+	}
+
+	public function edit($id, $data)
+	{
+		return DB::update('news')->set($data)->where('id_news', '=', $id)->execute();
+	}
+
+	public function get($id)
+	{
+		$res = DB::select()->from('news')->where('id_news', '=', $id)->execute();
+		return $res[0];
 	}
 }

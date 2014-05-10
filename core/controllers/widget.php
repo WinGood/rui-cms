@@ -6,15 +6,13 @@ class Controllers_Widget extends Controllers_Base
 
 	public function __construct()
 	{
-		$this->model = new Models_Widgets;
+		$this->model = Model::factory('widgets');
 	}
 
 	public function gallery()
 	{
-		$model = new Models_Gallery;
-		$id    = $this->getParam(0);
 		echo View::template('widget/gallery.php', array(
-			'img' => $model->getImages($id)
+			'img' => Model::factory('gallery')->getImages($this->getParam(0))
 		));
 	}
 
@@ -36,7 +34,7 @@ class Controllers_Widget extends Controllers_Base
 			$view = 'nav.php';
 		}
 
-		$widget = $this->model->get($id);
+		$widget = $this->model->getWidget($id);
 
 		echo View::template('widget/'.$view, array(
 			'pages' => $this->model->getThree($id),

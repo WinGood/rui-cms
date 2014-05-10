@@ -8,7 +8,7 @@ class Controllers_Frontedit extends Controllers_Base
 {
 	public function save()
 	{
-		$model = new Models_Pages;
+		$model = Model::factory('pages');
 		if($this->isPost())
 		{
 			if(!$err = Validation::run($_POST, array(
@@ -30,10 +30,9 @@ class Controllers_Frontedit extends Controllers_Base
 
 	public function getPage()
 	{
-		$model = new Models_Pages;
 		if($this->isPost())
 		{
-			$page = $model->get($_POST['id']);
+			$page = Model::factory('pages')->get($_POST['id']);
 			$data = $page['content'];
 			echo $data;	
 		}
@@ -43,17 +42,18 @@ class Controllers_Frontedit extends Controllers_Base
 	{
 		if(!empty($_POST['list']))
 		{
-			$where = "id_menu = $_POST[menu]";
-			DB::getInstance()->delete('menu_widget', $where);
-
+			DB::delete('menu_widget')->where('id_menu', '=', $_POST['menu'])->execute();
 			$widgets = explode(',', $_POST['list']);
-			$obj = array('id_menu' => $_POST['menu']);
 
 			for($i = 0; $i < count($widgets); $i++)
 			{
-				$obj['id_widget']  = $widgets[$i];
-				$obj['num_sort'] = $i;
-				DB::getInstance()->insert('menu_widget', $obj);
+				$data = array(
+					'id_menu'   => $_POST['menu'],
+					'id_widget' => $widgets[$i],
+					'num_sort'  => $i
+				);
+				
+				DB::insert('menu_widget', $data)->execute();
 			}
 			
 			echo true;

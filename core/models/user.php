@@ -1,55 +1,49 @@
 <?php
-class Models_User extends Models_Base
+class Models_User
 {
-	public function __construct()
-	{
-		parent::__construct('users', 'id_user');
-	}
-
 	public function searchUser($login, $pass)
 	{
-		$pass  = md5($pass);
-		$login = $this->mysqlFix($login);
-
-		$res = DB::getInstance()->select("SELECT * FROM users WHERE login = '$login' AND password = '$pass'");
-		if($res)
-			return $res[0];
+		$pass = md5($pass);
+		$res  = DB::select()
+				->from('users')
+				->where('login', '=', $login)
+				->where('password', '=', $pass)
+				->execute();
+		if($res) return $res[0];
 	}
 
 	public function getUser($login)
 	{
-		$login = $this->mysqlFix($login);
-
-		$res = DB::getInstance()->select("SELECT * FROM users WHERE login = '$login'");
-		if($res)
-			return $res[0];
+		$res = DB::select()->from('users')->where('login', '=', $login)->execute();
+		if($res) return $res[0];
 	}
 
 	public function getUserById($id)
 	{
-		$id  = (int) $id;
-		$res = DB::getInstance()->select("SELECT * FROM users WHERE id = $id");
-		if($res)
-			return $res[0];
+		$res = $res = DB::select()->from('users')->where('id', '=', $id)->execute();
+		if($res) return $res[0];
 	}
 
 	public function getList()
 	{
-		return DB::getInstance()->select("SELECT * FROM users LEFT JOIN roles using(id_role)");
+		return DB::select()->from('users')->leftJoin('roles')->using('id_role')->execute();
 	}
 
 	public function getRolesList()
 	{
-		return DB::getInstance()->select("SELECT * FROM roles");
+		return DB::select()->from('roles')->execute();
 	}
 
 	public function getPrivs()
 	{
-		if(!isset($_SESSION['user']['id_role']))
-			return array();
+		if(!isset($_SESSION['user']['id_role'])) return array();
 
 		$idRole = $_SESSION['user']['id_role'];
-		$res = DB::getInstance()->select("SELECT privs.name as name FROM privs2roles JOIN privs using(id_priv) WHERE id_role = $idRole");
+		$res    = DB::select('privs.name as name')
+					->from('privs2roles')
+					->join('privs')->using('id_priv')
+					->where('id_role', '=', $idRole)
+					->execute();
 
 		$privs = array();
 
@@ -64,12 +58,12 @@ class Models_User extends Models_Base
 	public function addUser($data)
 	{
 		$data['password'] = md5($data['password']);
-		return DB::getInstance()->insert('users', $data);
+		return DB::insert('users', $data)->execute();
 	}
 
 	public function addGroup($data)
 	{
-		return DB::getInstance()->insert('roles', $data);
+		return DB::insert('roles', $data)->execute();
 	}
 
 	public function editUser($id, $data)
@@ -79,7 +73,6 @@ class Models_User extends Models_Base
 		else
 			unset($data['password']);
 
-		$where = "id = $id";
-		return DB::getInstance()->update('users', $data, $where);
+		return DB::update('users')->set($data)->where('id', '=', $id)->execute();
 	}
 }

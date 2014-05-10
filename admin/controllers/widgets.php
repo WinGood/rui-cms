@@ -6,7 +6,7 @@ class Controllers_Widgets extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_Widgets;
+		$this->model = Model::factory('widgets');
 
 		$nav = array(
 			'widgets'     => 'Виджеты',

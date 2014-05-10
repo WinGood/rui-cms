@@ -6,15 +6,13 @@ class Controllers_User extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_User;
+		$this->model = Model::factory('user');
 	}
 
 	public function index()
 	{
-		$login = $this->getParam(0);
-		
-		if(empty($login))
-			Url::redirect('/user/login');
+		$login = $this->getParam(0);	
+		if(empty($login)) Url::redirect('/user/login');
 
 		$user = $this->model->getUser($login);
 		$this->setTitle('Профиль пользователя - ' . $user['login']);
@@ -30,8 +28,7 @@ class Controllers_User extends Controllers_Base
 
 	public function login()
 	{
-		if($res = User::get())
-			Url::redirect('/user/'.$res['login']);
+		if($res = User::get()) Url::redirect('/user/'.$res['login']);
 
 		$this->setTitle('Авторизация пользователя');
 		$data = array();

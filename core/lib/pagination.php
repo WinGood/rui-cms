@@ -63,8 +63,7 @@ class Pagination
 		}
 
 		$this->sql = $sql;
-
-		$res = DB::getInstance()->select($this->sql);
+		$res = DB::getInstance()->query($this->sql);
 		$this->totalPosts = count($res);
 
 		$this->getNavigation();
@@ -133,7 +132,7 @@ class Pagination
 		$start = ($this->page - 1) * $this->postNumber;
 		$this->sql .= " LIMIT $start, $this->postNumber";
 
-		return DB::getInstance()->select($this->sql);
+		return DB::getInstance()->query($this->sql);
 	}
 	
 	public function getPagination()

@@ -6,7 +6,7 @@ class Controllers_Gallery extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_Gallery;
+		$this->model = Model::factory('gallery');
 
 		$nav = array(
 			'gallery'     => 'Фотогалерея',

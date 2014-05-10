@@ -30,7 +30,7 @@ class Models_Search
 			{
 				$where = $this->createCondition($table['fields'], $string);
 				$dopWhere = ($table['where'] != '') ? " AND {$table['where']}" : '';
-				$results[$key] = DB::getInstance()->select("SELECT * FROM $key WHERE ($where) $dopWhere");
+				$results[$key] = DB::getInstance()->query("SELECT * FROM $key WHERE ($where) $dopWhere");
 			}
 		}
 

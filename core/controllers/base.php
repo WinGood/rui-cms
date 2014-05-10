@@ -16,7 +16,7 @@ abstract class Controllers_Base
 
 	public function __construct()
 	{
-		$this->menus = new Models_Menus;
+		$this->menus = Model::factory('menus');
 
 		$this->topMenu  = $this->menus->getMenuByCode('top');
 		$this->leftMenu = $this->menus->getMenuByCode('left');

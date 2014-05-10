@@ -6,7 +6,7 @@ class Controllers_News extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_News;
+		$this->model = Model::factory('news');
 
 		$nav = array(
 			'news'          => 'Новости',

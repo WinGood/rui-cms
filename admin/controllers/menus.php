@@ -6,7 +6,7 @@ class Controllers_Menus extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_Menus;
+		$this->model = Model::factory('menus');
 
 		$nav = array(
 			'menus'     => 'Меню',
@@ -28,12 +28,11 @@ class Controllers_Menus extends Controllers_Base
 	public function add()
 	{
 		$this->title = 'Добавление меню';
-		$widgetsModel = new Models_Widgets;
 		$this->scripts[] = 'jq-ui';
 		$this->scripts[] = 'sortable';
 		
 		$data = array();
-		$data['widgets_list'] = $widgetsModel->all();
+		$data['widgets_list'] = Model::factory('widgets')->all();
 
 		if($this->isPost())
 		{
@@ -64,14 +63,13 @@ class Controllers_Menus extends Controllers_Base
 	public function edit($params)
 	{
 		$this->title = 'Редактирование меню';
-		$id = $this->isNum($params[0]);
-		$widgetsModel = new Models_Widgets;
+		$id = $params[0];
 		$this->scripts[] = 'jq-ui';
 		$this->scripts[] = 'sortable';
 
 		$data = array();
 		$data['fields'] = $this->model->getMenu($id);
-		$data['widgets_list'] = $widgetsModel->all();
+		$data['widgets_list'] = Model::factory('widgets')->all();
 
 		if($this->isPost())
 		{

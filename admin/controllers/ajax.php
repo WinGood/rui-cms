@@ -52,12 +52,9 @@ class Controllers_Ajax extends Controllers_Base
 	public function uploadImage()
 	{
 		// TODO Проверка на авторизацию(только админ)
-		$modelImages  = new Models_Images;
-		$modelGallery = new Models_Gallery;
-
-		if($idImage = $modelImages->uploadBase64($_POST['name'], $_POST['value']))
+		if($idImage = Model::factory('images')->uploadBase64($_POST['name'], $_POST['value']))
 		{
-			$modelGallery->addImage($_POST['id_gallery'], $idImage);
+			Model::factory('gallery')->addImage($_POST['id_gallery'], $idImage);
 
 			die($_POST['name'] . ' - успешно загружено');
 		}
@@ -67,15 +64,13 @@ class Controllers_Ajax extends Controllers_Base
 
 	public function getGallery()
 	{
-		$model = new Models_Gallery;
-
-		foreach ($model->all() as $key => $val)
+		foreach (Model::factory('gallery')->all() as $key => $val)
 		{   
 		 
 			$data[$key]['id_gallery'] = $val['id_gallery'];
 			$data[$key]['title'] = $val['title'];	
-		}	
-		
+		}
+
 		echo json_encode($data);  
 	}
 
@@ -88,19 +83,27 @@ class Controllers_Ajax extends Controllers_Base
 		for($i = 0; $i < count($pages); $i++)
 		{
 			$idPage = (int) $pages[$i]['id'];
-			$where = "id_widget = $idWidget AND id_page = $idPage";
 
 			$obj['num_sort']  = $i;
 			$obj['id_parent'] = 0;
 
 			if(!empty($pages[$i]['children']))
 			{
-				DB::getInstance()->update('widgets_sort', $obj, $where);
+				DB::update('widgets_sort')
+					->set($obj)
+					->where('id_widget', '=', $idWidget)
+					->where('id_page', '=', $idPage)
+					->execute();
+
 				$this->sortingWidgetPageChild($pages[$i]['children'], $pages[$i]['id'], $idWidget);
 			}
 			else
 			{
-				DB::getInstance()->update('widgets_sort', $obj, $where);
+				DB::update('widgets_sort')
+					->set($obj)
+					->where('id_widget', '=', $idWidget)
+					->where('id_page', '=', $idPage)
+					->execute();
 			}
 		}
 		
@@ -112,12 +115,15 @@ class Controllers_Ajax extends Controllers_Base
 		for($j = 0; $j < count($data); $j++)
 		{
 			$idPage = (int) $data[$j]['id'];
-			$where = "id_widget = $idWidget AND id_page = $idPage";
 
 			$child['id_parent'] = $parent;
 			$child['num_sort']  = $j;
 
-			DB::getInstance()->update('widgets_sort', $child, $where);
+			DB::update('widgets_sort')
+				->set($child)
+				->where('id_widget', '=', $idWidget)
+				->where('id_page', '=', $idPage)
+				->execute();
 
 			if(!empty($data[$j]['children']))
 				$this->sortingWidgetPageChild($data[$j]['children'], $data[$j]['id'], $idWidget);

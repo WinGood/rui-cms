@@ -24,7 +24,7 @@ class Database_Select extends DB
 		if(strtoupper($operator) == 'IN')
 			$this->_sql .= " {$key} " .strtoupper($operator). " (" . implode(',', $val) . ')';
 		else
-			$this->_sql .= " {$key} {$operator} " . (is_numeric($val) ? $val : "'" . $this->mysqlFix($val) ."'");
+			$this->_sql .= " {$key} {$operator} " . (is_numeric($val) ? $val : "'" . $this->mysqlFix($val, true) ."'");
 
 		$this->_isWhere = 1;
 		return $this;
@@ -66,16 +66,11 @@ class Database_Select extends DB
 		return $this;
 	}
 
-	public function order($field, $direction)
+	public function order($field, $direction = 'asc')
 	{
 		$this->_sql .= " ORDER BY {$field} " . strtoupper($direction);
 		return $this;
-	}
-
-	public function printSql()
-	{
-		echo $this->_sql;
-	}
+	} 
 
 	public function execute()
 	{

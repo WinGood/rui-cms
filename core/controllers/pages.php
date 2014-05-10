@@ -11,7 +11,7 @@ class Controllers_Pages extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_Pages;
+		$this->model = Model::factory('pages');
 	}
 
 	public function index()
@@ -19,11 +19,10 @@ class Controllers_Pages extends Controllers_Base
 		Url::redirect('/main');
 	}
 
-	public function view($params)
+	public function view()
 	{
 		$url = $this->getUrl();
-		if($url == 'home')
-			Url::redirect('/');
+		if($url == 'home') Url::redirect('/');
 
 		$page = $this->model->getPageUrl($url);
 		if(!$page) RUI::show404();

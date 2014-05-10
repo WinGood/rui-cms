@@ -2,14 +2,15 @@
 class Database_Update extends DB
 {
 	private $_sql;
-	private $rows;
+	private $_isWhere;
+	private $_where = 'AND';
 
 	public function __construct($table)
 	{
 		$this->_sql = "UPDATE `{$table}`";
 	}
 
-	public function set($vals)
+	public function set($vals, $htmlClear = false)
 	{
 		$this->_sql .= " SET ";
 
@@ -17,7 +18,7 @@ class Database_Update extends DB
 
 		foreach ($vals as $k => $v)
 		{
-			$arr[] = "`{$k}` = ". (is_numeric($v) ? $v : "'" . $this->mysqlFix($v) ."'");
+			$arr[] = "`{$k}` = ". (is_numeric($v) ? $v : "'" . $this->mysqlFix($v, $htmlClear) ."'");
 		}
 
 		$this->_sql .= implode(',', $arr);
@@ -26,8 +27,9 @@ class Database_Update extends DB
 
 	public function where($key, $operator, $val)
 	{
-		$this->_sql .= " WHERE";	
-		$this->_sql .= " `{$key}` {$operator} " . (is_numeric($val) ? $val : "'" . $this->mysqlFix($val) ."'");
+		if(!$this->_isWhere) $this->_sql .= " WHERE"; else $this->_sql .= " {$this->_where}";
+		$this->_sql .= " `{$key}` {$operator} " . (is_numeric($val) ? $val : "'" . $this->mysqlFix($val, true) ."'");
+		$this->_isWhere = 1;
 		return $this;
 	}
 

@@ -1,9 +1,15 @@
 <?php
-class Models_Widgets extends Models_Base
+class Models_Widgets
 {
-	public function __construct()
+	public function all()
 	{
-		parent::__construct('widgets', 'id_widget');
+		return DB::select()->from('widgets')->execute();
+	}
+
+	public function get($id)
+	{
+		$res = DB::select()->from('widgets')->where('id_widget', '=', $id)->execute();
+		return $res[0];
 	}
 
 	public function addWidget($data)
@@ -12,15 +18,14 @@ class Models_Widgets extends Models_Base
 		$pages        = isset($data['pages']) ? $data['pages'] : '';
 		unset($data['pages']);
 
-		$idWidget = DB::getInstance()->insert('widgets', $data);
+		$idWidget = DB::insert('widgets', $data)->execute();
 
 		if(!empty($pages))
 		{
 			$wdt['path'] = $data['path'] . '/' . 'get/' . $idWidget;	
 			$wdt['is_sort'] = 1;
-			$where = "id_widget = $idWidget";
 
-			DB::getInstance()->update('widgets', $wdt, $where);
+			DB::update('widgets')->set($wdt)->where('id_widget', '=', $idWidget)->execute();
 
 			// Если в виджете есть страницы, то заносим их в БД что бы можно было в 
 			// дальнейшем сортировать
@@ -36,7 +41,7 @@ class Models_Widgets extends Models_Base
 				$obj['id_page']  = $pages[$i];
 				$obj['num_sort'] = $i;
 
-				DB::getInstance()->insert('widgets_sort', $obj);
+				DB::insert('widgets_sort', $obj)->execute();
 			}
 		}
 
@@ -52,7 +57,7 @@ class Models_Widgets extends Models_Base
 			$child['id_page']   = $data[$j]['id_page'];
 			$child['num_sort']  = $j;
 
-			DB::getInstance()->insert('widgets_sort', $child);
+			DB::insert('widgets_sort', $child)->execute();
 
 			if($res = $this->checkChild($data[$j]['id_page']))
 				$this->addChild($res, $data[$j]['id_page'], $idWidget);
@@ -61,7 +66,7 @@ class Models_Widgets extends Models_Base
 
 	private function checkChild($idParent)
 	{
-		return DB::getInstance()->select("SELECT id_page FROM pages WHERE id_parent = $idParent");
+		return DB::select('id_page')->from('pages')->where('id_parent', '=', $idParent)->execute();
 	}
 
 	public function editWidget($id, $data)
@@ -71,9 +76,7 @@ class Models_Widgets extends Models_Base
 		$data['is_sort'] = 0;
 		unset($data['pages']);
 
-		$where = "id_widget = $id";
-
-		DB::getInstance()->delete('widgets_sort', $where);
+		DB::delete('widgets_sort')->where('id_widget', '=', $id);
 
 		if(!empty($pages))
 		{
@@ -93,7 +96,7 @@ class Models_Widgets extends Models_Base
 				$obj['id_page']  = $pages[$i];
 				$obj['num_sort'] = $i;
 
-				DB::getInstance()->insert('widgets_sort', $obj);
+				DB::insert('widgets_sort', $obj)->execute();
 			}
 		}
 		else
@@ -101,45 +104,47 @@ class Models_Widgets extends Models_Base
 			$data['path'] = $path[0];
 		}
 
-		DB::getInstance()->update('widgets', $data, $where);
+		DB::update('widgets')->set($data)->where('id_widget', '=', $id)->execute();
 
 		return true;
 	}
 
 	public function deleteWidget($id)
 	{
-		$where = "id_widget = $id";
-		DB::getInstance()->delete('widgets_sort', $where);
-		return DB::getInstance()->delete('widgets', $where);
+		DB::delete('widgets_sort')->where('id_widget', '=', $id)->execute();
+		return DB::delete('widgets')->where('id_widget', '=', $id)->execute();
 	}
 
 	public function getWidgetByPath($path)
 	{
-		$res = DB::getInstance()->select("SELECT * FROM widgets WHERE path = '$path'");
-		if($res)
-			return $res[0];
+		$res = DB::select()->from('widgets')->where('path', '=', $path)->execute();
+		if($res) return $res[0];
+	}
+
+	public function getWidget($id)
+	{
+		$res = DB::select()->from('widgets')->where('id_widget', '=', $id)->execute();
+		if($res) return $res[0];
 	}
 
 	public function getWidgetPages($idWidget)
 	{
-		return DB::getInstance()->select("
-			SELECT id_page, title_in_menu, full_url, widgets_sort.id_parent
-			FROM pages
-			INNER JOIN widgets_sort using(id_page)
-			WHERE widgets_sort.id_widget = $idWidget
-			ORDER BY num_sort ASC
-		");
+		return DB::select('id_page', 'title_in_menu', 'full_url', 'widgets_sort.id_parent')
+				->from('pages')
+				->join('widgets_sort')->using('id_page')
+				->where('widgets_sort.id_widget', '=', $idWidget)
+				->order('num_sort')
+				->execute();
 	}
 
 	public function getWidgetPagesIds($idWidget)
 	{
-		$res = DB::getInstance()->select("
-			SELECT id_page, title_in_menu, full_url
-			FROM pages
-			INNER JOIN widgets_sort using(id_page)
-			WHERE widgets_sort.id_widget = $idWidget
-			ORDER BY num_sort ASC
-		");
+		$res = DB::select('id_page', 'title_in_menu', 'full_url')
+				->from('pages')
+				->join('widgets_sort')->using('id_page')
+				->where('widgets_sort.id_widget', '=', $idWidget)
+				->order('num_sort')
+				->execute();
 
 		$arr = array();
 		if(!empty($res))

@@ -11,8 +11,7 @@ abstract class Controllers_Base
 
 	public function __construct()
 	{
-		if(!User::isAdmin())
-			Url::redirect('/');
+		if(!User::isAdmin()) Url::redirect('/');
 
 		$this->scripts = array('script', 'ckeditor/ckeditor', 'ckeditor/ck_init');
 		$this->styles  = array('style');
@@ -52,13 +51,11 @@ abstract class Controllers_Base
 
 		if(is_integer($num))
 		{
-			if(isset($uri[$num]))
-				$res = $uri[$num];
+			if(isset($uri[$num])) $res = $uri[$num];
 		}
 		else
 		{
-			if(!empty($_GET) AND isset($_GET[$num]))
-				$res = $_GET[$num];
+			if(!empty($_GET) AND isset($_GET[$num])) $res = $_GET[$num];
 		}
 
 		return $res;

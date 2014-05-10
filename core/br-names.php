@@ -1,6 +1,6 @@
 <?php
 return array(
-		'catalog'  	=> 'Каталог',
-		'pages' 	=> 'Страницы',
-		'posts'		=> 'Записи'
+	'catalog'	=> 'Каталог',
+	'pages' 	=> 'Страницы',
+	'posts'		=> 'Записи'
 );

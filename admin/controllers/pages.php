@@ -7,8 +7,8 @@ class Controllers_Pages extends Controllers_Base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->model = new Models_Pages;
-		$this->modelMenu = new Models_Menus;
+		$this->model = Model::factory('pages');
+		$this->modelMenu = Model::factory('menus');
 
 		$nav = array(
 			'pages'     	=> 'Страницы',

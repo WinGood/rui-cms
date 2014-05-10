@@ -1,9 +1,9 @@
 <?php
-class Models_Menus extends Models_Base
+class Models_Menus
 {
-	public function __construct()
+	public function all()
 	{
-		parent::__construct('menu', 'id_menu');
+		return DB::select()->from('menu')->execute();
 	}
 
 	public function getMenuByCode($code)
@@ -12,17 +12,10 @@ class Models_Menus extends Models_Base
 		$id  = $res[0]['id_menu'];
 		$res = DB::select()
 				->from('menu_widget')
-				->join('widgets')
-				->using('id_widget')
+				->join('widgets')->using('id_widget')
 				->where('menu_widget.id_menu', '=', $id)
-				->order('num_sort', 'asc')
-				//->printSql();
+				->order('num_sort')
 				->execute();
-		// $res = DB::getInstance()->select("
-		// 	SELECT * FROM menu_widget
-		// 	JOIN widgets using(id_widget)
-		// 	WHERE menu_widget.id_menu = $id
-		// 	ORDER BY num_sort ASC");
 
 		$arr = array();
 		foreach($res as $item)
@@ -36,11 +29,12 @@ class Models_Menus extends Models_Base
 
 	public function getMenuById($id)
 	{
-		$res = DB::getInstance()->select("
-			SELECT * FROM menu_widget
-			JOIN widgets using(id_widget)
-			WHERE menu_widget.id_menu = $id
-			ORDER BY num_sort ASC");
+		$res = DB::select()
+				->from('menu_widget')
+				->join('widgets')->using('id_widget')
+				->where('menu_widget.id_menu', '=', $id)
+				->order('num_sort')
+				->execute();
 		
 		$arr = array();
 		foreach($res as $item)
@@ -54,21 +48,21 @@ class Models_Menus extends Models_Base
 
 	public function addMenu($data)
 	{
-		$idMenu = DB::getInstance()->insert('menu', array(
+		$idMenu = DB::insert('menu', array(
 			'title' => $data['title'],
 			'code'  => $data['code']
-		));
+		))->execute();
 
-		if(isset($data['widgets']))
+		if(!empty($data['widgets']))
 		{
 			$widgets = explode(',', $data['widgets']);
 			$obj = array('id_menu' => $idMenu);
 
 			for($i = 0; $i < count($widgets); $i++)
 			{
-				$obj['id_widget']  = $widgets[$i];
-				$obj['num_sort'] = $i;
-				DB::getInstance()->insert('menu_widget', $obj);
+				$obj['id_widget'] = $widgets[$i];
+				$obj['num_sort']  = $i;
+				DB::insert('menu_widget', $obj)->execute();
 			}
 			return $idMenu;
 		}
@@ -78,10 +72,10 @@ class Models_Menus extends Models_Base
 	
 	public function getMenu($id)
 	{
-		$res   = DB::getInstance()->select("SELECT * FROM menu WHERE id_menu = $id");
+		$res   = DB::select()->from('menu')->where('id_menu', '=', $id)->execute();
 		$menu  = $res[0];
 		
-		$pages = DB::getInstance()->select("SELECT id_widget FROM menu_widget WHERE id_menu = $menu[id_menu] ORDER BY num_sort ASC");
+		$pages = DB::select('id_widget')->from('menu_widget')->where('id_menu', '=', $menu['id_menu'])->order('num_sort')->execute();
 		$row   = array();
 		
 		foreach($pages as $page)
@@ -94,25 +88,23 @@ class Models_Menus extends Models_Base
 	}
 
 	public function editMenu($id, $data)
-	{
-		$where = "id_menu = $id";
-		DB::getInstance()->delete('menu_widget', $where);
+	{	
+		$widget = $data['widgets'];
+		unset($data['widgets']);
 
-		DB::getInstance()->update('menu', array(
-			'title' => $data['title'],
-			'code'  => $data['code']
-		), $where);
+		DB::delete('menu_widget')->where('id_menu', '=', $id)->execute();
+		DB::update('menu')->set($data)->where('id_menu', '=', $id)->execute();
 
-		if(!empty($data['widgets']))
+		if(!empty($widget))
 		{
-			$widgets = explode(',', $data['widgets']);
+			$widgets = explode(',', $widget);
 			$obj = array('id_menu' => $id);
 
 			for($i = 0; $i < count($widgets); $i++)
 			{
 				$obj['id_widget']  = $widgets[$i];
 				$obj['num_sort'] = $i;
-				DB::getInstance()->insert('menu_widget', $obj);
+				DB::insert('menu_widget', $obj)->execute();
 			}
 
 			return $id;

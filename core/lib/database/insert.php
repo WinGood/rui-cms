@@ -5,35 +5,22 @@ class Database_Insert extends DB
 	private $table;
 	private $rows;
 
-	public function __construct($table, $rows)
+	public function __construct($table, array $rows, $htmlClear = false)
 	{
 		$this->table = $table;
 		$this->rows  = $rows;
 
-		$this->_sql = "INSERT INTO `{$table}` (";
+		$this->_sql = "INSERT INTO `{$table}` SET ";
 
 		$arr = array();
 
-		foreach($rows as $row)
+		foreach ($rows as $k => $v)
 		{
-			$arr[] = (is_numeric($row) ? $row : "`{$row}`");
+			$v = $this->mysqlFix($v, $htmlClear);
+			$arr[] = "`{$k}` = ". (is_numeric($v) ? $v : "'{$v}'");
 		}
 
-		$this->_sql .= implode(', ', $arr) . ')';
-	}
-
-	public function values($vals)
-	{
-		$this->_sql .= " VALUES (";
-
-		$arr = array();
-		foreach ($vals as $item)
-		{
-			$arr[] = (is_numeric($item) ? $item : "'" . $this->mysqlFix($item) ."'");
-		}
-
-		$this->_sql .= implode(', ', $arr) .')';
-		return $this;
+		$this->_sql .= implode(', ', $arr);	
 	}
 
 	public function execute()

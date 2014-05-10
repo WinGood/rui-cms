@@ -39,10 +39,8 @@ class Controllers_Users extends Controllers_Base
 
 	public function group($params)
 	{
-		if(!isset($params[0]))
-			Url::redirect('/admin/users');
 		$action = $params[0];
-
+		$data   = array();
 		switch ($action)
 		{
 			case 'add':
@@ -69,11 +67,7 @@ class Controllers_Users extends Controllers_Base
 					$data['fields'] = $_POST;
 				}
 
-				$this->content = View::template('users/group/add.php');
-			break;
-			
-			default:
-				Url::redirect('/admin/users');
+				$this->content = View::template('users/group/add.php', $data);
 			break;
 		}
 
